@@ -1,0 +1,191 @@
+/**
+ * EcriturePrimaire entity.
+ * @author Sanda
+ * C'est l'unité d'écriture comptable
+ *     relation
+ *     OneToOne avec PlanComptable pour le numero de compte
+ *     ManyToOne avec Ecriture
+ */
+entity EcriturePrimaire {
+    montant Double
+    debitCredit DebitCredit
+}
+/**
+ * Ecriture entity.
+ * @author Sanda
+ * C'est l'écriture comptable d'une opération
+ * relation
+ *     OneToMany avec EcriturePrimaire pour le numero de compte
+ *     ManyToOne avec Journal
+ *     ManyToOne avec Facture
+ */
+entity Ecriture {
+    intituleOperation String
+}
+/**
+ * Ecriture entity.
+ * @author Sanda
+ * C'est l'écriture comptable d'une opération
+ * relation
+ *     OneToMany avec Ecriture pour le journal
+ *     ManyToOne avec Journal
+ */
+entity Journal {
+    dateOperation Date
+}
+/**
+ * GrandLivre entity.
+ * @author Sanda
+  MISE AU POINT
+    Il parait évident qu'il ne faut pas faire 
+    l'amalgamme entre les requêtes produit
+    à partir des données primaires et les données
+    obtenues des contribuables. 
+        On pourrait du journal obtenir toutes
+        les données des tableaux de synthèse
+        tels que:
+         - Grand Livre
+         - Balance avant inventaire
+         - Inventaire
+         - Resultat
+         - Bilan
+         - Tafire
+    Ce n'est pas pour autant que nous ne 
+    declarerons tous ces états. Les déclarer reviendrait
+    à le comparer avec ceux des synthèses.
+         
+ * C'est une table basée sur les requêtes
+ *     REQUÊTE
+ *         - Une requête pour le numero de compte
+ *         qui est répertorié dans le grand livre
+ *         - Une requête pour dispatcher les comptes
+ *         de la tranche considerée en des différentes
+ *         partie (debit/credit)
+ *         - Une requête pour calculer le solde
+    RELATION
+        OneToMany avec EtatGrandLivreDeclare
+ */
+entity GrandLivreDeclare {
+    montant Double
+    debitCredit DebitCredit
+}
+/**
+ * BalanceDeclare entity.
+ * @author Sanda
+ *   La balance c'est le document qui repertorie
+ *   toutes les mouvements possibles. Le solde n'est
+ *   rien d'autre que des requêtes permettant
+ *   de les avoirs avant toute ecriture comptable
+ *   RELATION
+ *     ManyToOne avec PlanComptable
+ */
+entity EnteteBalanceDeclare {
+    dateDeclaration Date
+    typeBalance TypeBalance
+}
+/**
+ * BalanceDeclare entity.
+ * @author Sanda
+ *   La balance c'est le document qui repertorie
+ *   toutes les mouvements possibles. Le solde n'est
+ *   rien d'autre que des requêtes permettant
+ *   de les avoirs avant toute ecriture comptable
+ *   RELATION
+ *     ManyToOne avec PlanComptable
+ */
+entity BalanceDeclare {
+    montant Double
+    debitCredit DebitCredit
+}
+/**
+ * EtatBalanceDeclare entity.
+ * @author Sanda
+ *   C'est la balance qui est exigée dans 
+ *   le code général des impôts
+ *   RELATION
+ *     OneToMany avec BalanceDeclare
+ */
+entity EtatDocumentComptable {
+    intituleBalance String
+}
+enum TypeBalance {
+    BALANCE_AVANT_INVENTAIRE, BALANCE_APRES_INVENTAIRE
+}
+/**
+ * EtatCreanceDeclare entity.
+ * @author Sanda
+ *   C'est la Etat des Creances Declare 
+ */
+entity CreanceDeclare {
+    fournisseur String
+    creanceTTC Double
+    creanceHT Double
+    regleN Double
+    restantDuTTC Double
+    restantDuHT Double
+    provisionN_1 Double
+    provisionN Double
+    reajustement Double
+    tilisationFinal Double
+    tva Double
+}
+/**
+ * One to many relationship.
+ */
+relationship OneToMany {
+    ExerciceComptable to EtatDocumentComptable
+}
+/**
+ * One to many relationship.
+ */
+relationship OneToMany {
+    Journal to Ecriture
+}
+/**
+ * One to many relationship.
+ */
+relationship OneToMany {
+    Ecriture to EcriturePrimaire
+}
+/**
+ * One to one relationship.
+ */
+relationship OneToOne {
+    EcriturePrimaire to GrandLivreDeclare
+}
+relationship OneToMany {
+    EtatDocumentComptable to GrandLivreDeclare
+}
+relationship OneToOne {
+    EcriturePrimaire to PlanComptable
+}
+relationship OneToOne {
+    EnteteBalanceDeclare to BalanceDeclare
+}
+relationship OneToMany {
+    Facture to Ecriture
+}
+relationship OneToMany {
+    CreanceDeclare to Facture
+}
+relationship OneToMany {
+    EtatDocumentComptable to CreanceDeclare
+}
+relationship OneToMany {
+    EtatDocumentComptable to Journal
+}
+relationship OneToMany {
+    EtatDocumentComptable to BalanceDeclare
+}
+relationship ManyToOne {
+    EtatDocumentComptable to EnteteDeclaration
+}
+// Set pagination options
+paginate EcriturePrimaire, Ecriture with infinite-scroll
+paginate Journal, GrandLivreDeclare, BalanceDeclare, EtatDocumentComptable, CreanceDeclare, LivreDePaieDeclare with pagination
+// Use Data Transfert Objects (DTO)
+dto EcriturePrimaire, Ecriture, Journal, GrandLivreDeclare, BalanceDeclare, EtatDocumentComptable, CreanceDeclare, LivreDePaieDeclare with mapstruct
+// Set service options to all except few
+service all with serviceImpl
+// Set an angular suffix
+// angularSuffix * with mySuffix
