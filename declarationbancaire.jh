@@ -1,0 +1,141 @@
+/**
+ * CompteBancaire entity.
+ * @author Sanda
+ * C'est la liste de compte de tous les 
+ *    contribuables
+ *   RELATION
+ *      ManyToOne avec Contribuable   
+ *      OneToMany avec ReleveCompte
+ */
+entity CompteBancaire {
+    dateOuverture Date
+    numCompte String
+    typeCompte TypeCompte
+    soldeCompte Double
+}
+/**
+ * ReleveCompte entity.
+ * @author Sanda
+ * C'est la liste de compte de tous les 
+ *    contribuables
+ *   RELATION
+ *      ManyToOne avec CompteBancaire   
+ *      OneToMany avec DetailReleveCompte
+ */
+entity ReleveCompte {
+    dateDebut Date required
+    dateFin Date required
+    soldeDebutPeriode Double
+    totalDebit Double
+    totalCredit Double
+    soldeFinPeriode Double
+    nombreDebit Integer
+    nombreCredit Integer
+}
+enum TypeOperation {
+    REMISE_CHEQUE, VIREMENT_BANCAIRE, DEPOT
+}
+enum TypeCompte {
+    COMPTE_COURANT, COMPTE_EPARGNE
+}
+/**
+ * DetailReleveCompte entity.
+ * @author Sanda
+ * C'est la liste de compte de tous les 
+ *    contribuables
+ *   RELATION
+ *      ManyToOne avec ReleveCompte   
+ */
+entity DetailReleveCompte {
+    dateTransaction Date required
+    typeOperation TypeOperation
+    detailTransaction String
+    operationBancaire OperationBancaire
+    dateValeur Date
+    debit Boolean
+    montantOperation Double
+}
+/**
+ * OperationBancaire entity.
+ * @author Sanda
+ * C'est l'ensemble des opération que l'instituion
+    bancaire offre
+ *   RELATION
+ *      ManyToOne avec CompteBancaire   
+ *      OneToMany avec DetailReleveCompte
+ */
+entity OperationBancaire {
+    nomOperation String
+    codeOperation String
+    description String
+}
+/**
+ * CoutOperation entity.
+ * @author Sanda
+ * C'est la liste de compte de tous les 
+ *    contribuables
+ *   RELATION
+ *      ManyToOne avec CompteBancaire   
+ *      OneToMany avec DetailReleveCompte
+ */
+entity CoutOperation {
+    dateValidite Date
+}
+/**
+ * One to many relationship.
+ * propriétaire du compte
+ */
+relationship OneToMany {
+    Contribuable to CompteBancaire
+}
+/**
+ * One to many relationship.
+ * Les comptes de l'institution
+ */
+relationship OneToMany {
+    CompteBancaire to Contribuable
+}
+/**
+ * One to many relationship.
+ * Les comptes de l'institution
+ */
+relationship OneToMany {
+    EnteteDeclaration to CompteBancaire
+}
+/**
+ * One to many relationship.
+ */
+relationship OneToMany {
+    OperationBancaire to CoutOperation
+}
+/**
+ * One to many relationship.
+ */
+relationship OneToMany {
+    CoutOperation to FacteurCalcul
+}
+/**
+ * One to many relationship.
+ */
+relationship OneToMany {
+	CompteBancaire to  ReleveCompte
+}
+relationship OneToMany {
+	ReleveCompte to  DetailReleveCompte
+}
+relationship OneToMany {
+	ReleveCompte to  Chequier
+}
+relationship OneToMany {
+	DetailReleveCompte to  Facture
+}
+// Set pagination options
+paginate DetailReleveCompte with infinite-scroll
+paginate CompteBancaire, ReleveCompte, OperationBancaire, CoutOperation with pagination
+// Use Data Transfert Objects (DTO)
+dto CompteBancaire, ReleveCompte, DetailReleveCompte, CoutOperation with mapstruct
+// Set service options to all except few
+service all with serviceImpl except CoutOperation
+// Set an angular suffix
+// angularSuffix * with mySuffix
+microservice compteBancaire, releveCompte, detailReleveompte, operationBancaire, coutOperationBancaire,
